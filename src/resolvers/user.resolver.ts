@@ -18,7 +18,7 @@ export const userResolver = {
       // return { id: "1", email: "user@gmail.com", password: "passs" };
     },
 
-    async userById(_: unknown, { id }) {
+    async userById(_: unknown, { id }: { id: string }) {
       console.log({ id });
 
       const userRes = await db.query.users.findFirst({

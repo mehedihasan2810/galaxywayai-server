@@ -4,7 +4,7 @@ import { db } from "../lib/db/index.js";
 import "dotenv/config";
 import { Tool, tools } from "../lib/db/schema.js";
 
-export const songResolver = {
+export const toolResolver = {
   Query: {
     async tools(): Promise<Tool[]> {
       const toolsRes = await db.select().from(tools);
@@ -77,40 +77,6 @@ export const songResolver = {
 
       return updatedToolRes;
     },
-
-    // async deleteTool(_, { deleteSongInput }) {
-    //   console.log({ deleteSongInput });
-
-    //   const { id, songUrl, songImage, artistImage, albumImage } =
-    //     deleteSongInput;
-
-    //   const result = await Promise.all(
-    //     [songUrl, songImage, artistImage, albumImage].map(async (url) => {
-    //       if (url) {
-    //         const key = url.split("/").slice(-1)[0];
-
-    //         const deleteParams = {
-    //           Bucket: process.env.S3_BUCKET_NAME,
-    //           Key: key,
-    //         };
-
-    //         await s3Client.send(new DeleteObjectCommand(deleteParams));
-    //       }
-    //     })
-    //   );
-
-    //   console.log({ result });
-
-    //   const deletedSongRes = await db
-    //     .delete(songs)
-    //     .where(eq(songs.id, id))
-    //     .returning()
-    //     .then((res) => res[0]);
-
-    //   console.log({ deletedSongRes });
-
-    //   return deletedSongRes;
-    // },
 
     async updateStatus(
       _: unknown,

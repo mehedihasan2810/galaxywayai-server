@@ -8,6 +8,8 @@ import { resolvers } from "./resolvers";
 import { typeDefs } from "./typeDefs";
 
 import "dotenv/config";
+import { tools } from "./lib/db/schema";
+import { db } from "./lib/db";
 
 const PORT = process.env.PORT || 4000;
 const app = express();
@@ -29,7 +31,8 @@ await server.start();
 app.use("/graphql", cors(), json(), expressMiddleware(server));
 
 app.get("/", async (_, res) => {
-  res.status(200).send("I am aliveee...");
+  const toolsRes = await db.select().from(tools);
+  res.status(200).send({ message: "I am aliveee...", toolsRes });
 });
 
 app.get("/test", async (_, res) => {

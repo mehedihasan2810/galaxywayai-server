@@ -14,8 +14,7 @@ type Suggestions {
 
 type Tool {
     id: ID!
- 
-    name: String;
+    name: String
     description: String
     url: String
     shortUrl: String
@@ -23,22 +22,28 @@ type Tool {
     image: String
     category: String
     categories: [String]
-
     pricingModel: String
     feature: String
     blog: String
     label: String
-
     suggestions: [Suggestions]
-
     status: String
-
     createdAt: DateTime!
     updatedAt: DateTime!
 }
 
+input SuggestionsInput {
+    id: String
+    name: String
+    email: String
+    reason: String
+    suggestion: String
+    createdAt: String
+    updatedAt: String
+}
+
 input CreateToolInput {
-    name: String;
+    name: String
     description: String
     url: String
     shortUrl: String
@@ -46,21 +51,17 @@ input CreateToolInput {
     image: String
     category: String
     categories: [String]
-
     pricingModel: String
     feature: String
     blog: String
     label: String
-
-    suggestions: [Suggestions]
-
+    suggestions: [SuggestionsInput]
     status: String
 }
 
 input UpdateToolInput {
     id: String
-     
-    name: String;
+    name: String
     description: String
     url: String
     shortUrl: String
@@ -68,14 +69,11 @@ input UpdateToolInput {
     image: String
     category: String
     categories: [String]
-
     pricingModel: String
     feature: String
     blog: String
     label: String
-
-    suggestions: [Suggestions]
-
+    suggestions: [SuggestionsInput]
     status: String
 }
 
@@ -94,7 +92,7 @@ type Query {
 type Mutation {
     createTool(tool: CreateToolInput): Tool
     updateTool(tool: UpdateToolInput): Tool
-    deleteTool(id: String): Tool
+    # deleteTool(id: String): Tool
     updateStatus(statusInput: StatusInput): Tool
 }
 `;
