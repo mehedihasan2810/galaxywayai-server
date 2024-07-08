@@ -4,9 +4,11 @@ scalar DateTime
 
 type User {
   id: ID!
-
+ 
+  username: String;
   email: String!
-  password: String!
+  password: String
+  emailVerified: DateTime
 
   createdAt: DateTime!
   updatedAt: DateTime!

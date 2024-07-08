@@ -1,7 +1,7 @@
 import express, { json } from "express";
 import cors from "cors";
 import morgan from "morgan";
-import helmet from "helmet";
+// import helmet from "helmet";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { resolvers } from "./resolvers";
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 4000;
 const app = express();
 
 app.use(morgan("dev"));
-app.use(helmet());
+// app.use(helmet());
 app.use(cors());
 app.use(express.json());
 

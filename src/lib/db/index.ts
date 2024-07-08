@@ -5,7 +5,7 @@ import "dotenv/config";
 
 const { Pool } = pg;
 
-const client = new Pool({
+export const client = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: 50, // Use 50 connections out of the 72 available
   idleTimeoutMillis: 30000, // This setting closes idle connections after 30 seconds, which helps manage resource usage.

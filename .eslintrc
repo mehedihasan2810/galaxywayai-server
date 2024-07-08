@@ -17,7 +17,10 @@
     "camelcase": 0,
     "import/extensions": 0,
     "@typescript-eslint/no-redeclare": 0,
-    "@typescript-eslint/quotes": 0
+    "@typescript-eslint/quotes": 0,
+    "import/no-extraneous-dependencies": 0,
+    "@typescript-eslint/comma-dangle": 0,
+    "@typescript-eslint/indent": 0
   },
   "settings": {
     "import/parsers": {
