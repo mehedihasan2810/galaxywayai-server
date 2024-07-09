@@ -32,6 +32,25 @@ type Tool {
     updatedAt: DateTime!
 }
 
+type OldTool {
+    id: ID!
+    name: String
+    title: String
+    description: String
+    url: String
+    summary: String
+    tags: [String]
+    additionalTags: [String]
+    image: String
+    pricingModel: String
+    suggestions: [Suggestions]
+    likes: Int
+    likedUsers: [String]
+    status: String
+    createdAt: DateTime!
+    updatedAt: DateTime!
+}
+
 input SuggestionsInput {
     id: String
     name: String
@@ -40,6 +59,11 @@ input SuggestionsInput {
     suggestion: String
     createdAt: String
     updatedAt: String
+}
+
+type GenerateToolRes {
+    data: String
+    error: String
 }
 
 input CreateToolInput {
@@ -87,6 +111,10 @@ type Query {
     tools: [Tool]
     tool(id: String!): Tool
     publishedTools: [Tool]
+
+    oldTools: [OldTool]
+    oldTool(id: String!): OldTool
+    publishedOldTools: [OldTool]
 }
 
 type Mutation {
@@ -94,5 +122,6 @@ type Mutation {
     updateTool(tool: UpdateToolInput): Tool
     # deleteTool(id: String): Tool
     updateStatus(statusInput: StatusInput): Tool
+    generateTool(url: String): GenerateToolRes
 }
 `;
