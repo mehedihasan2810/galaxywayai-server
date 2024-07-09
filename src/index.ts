@@ -37,7 +37,7 @@ app.get("/test", async (_, res) => {
   res.status(200).send({ message: "I am aliveee...", toolsRes });
 });
 
-// start the Express server
+
 app.listen(PORT, () => {
   console.log(`Express server is running on: http://localhost:${PORT}`);
   console.log(`GraphQL server is running on: http://localhost:${PORT}/graphql`);
