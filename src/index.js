@@ -3,11 +3,11 @@ import cors from "cors";
 import morgan from "morgan";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
-import { resolvers } from "./resolvers";
-import { typeDefs } from "./typeDefs";
+import { resolvers } from "./resolvers/index.js";
+import { typeDefs } from "./typeDefs/index.js";
 
-import { tools } from "./lib/db/schema";
-import { db } from "./lib/db";
+import { tools } from "./lib/db/schema.js";
+import { db } from "./lib/db/index.js";
 import "dotenv/config";
 
 const PORT = process.env.PORT || 4000;
@@ -29,7 +29,7 @@ await server.start();
 app.use("/graphql", cors(), json(), expressMiddleware(server));
 
 app.get("/", async (_, res) => {
-  res.status(200).send("I am aliveee3333...");
+  res.status(200).send("I am aliveee44...");
 });
 
 app.get("/test", async (_, res) => {

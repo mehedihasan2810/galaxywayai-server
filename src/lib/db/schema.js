@@ -33,17 +33,7 @@ export const tools = pgTable("tools", {
   profileImage: text("profile_image"),
   image: text("image"),
   status: text("status"),
-  suggestions: jsonb("suggestions").$type<
-    Array<{
-      id: string;
-      name: string;
-      email: string;
-      reason: string;
-      suggestion: string;
-      created_at: string;
-      updated_at: string;
-    }>
-  >(),
+  suggestions: jsonb("suggestions").array(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -53,5 +43,5 @@ export const tools = pgTable("tools", {
     .notNull(),
 });
 
-export type User = typeof users.$inferSelect;
-export type Tool = typeof tools.$inferSelect;
+// export type User = typeof users.$inferSelect;
+// export type Tool = typeof tools.$inferSelect;

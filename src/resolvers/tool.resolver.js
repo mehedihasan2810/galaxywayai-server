@@ -2,11 +2,11 @@ import { eq } from "drizzle-orm";
 import { db } from "../lib/db/index.js";
 
 import "dotenv/config";
-import { Tool, tools } from "../lib/db/schema.js";
+import { tools } from "../lib/db/schema.js";
 
 export const toolResolver = {
   Query: {
-    async tools(): Promise<Tool[]> {
+    async tools() {
       const toolsRes = await db.select().from(tools);
 
       console.log({ toolsRes });
@@ -25,7 +25,7 @@ export const toolResolver = {
       return publishedToolsRes;
     },
 
-    async tool(_: unknown, { id }: { id: string }): Promise<Tool> {
+    async tool(_, { id }) {
       console.log({ id });
 
       const toolRes = await db
@@ -41,10 +41,7 @@ export const toolResolver = {
   },
 
   Mutation: {
-    async createTool(
-      _: unknown,
-      { tool }: { tool: Omit<Tool, "id" | "createdAt" | "updatedAt"> }
-    ): Promise<Tool> {
+    async createTool(_, { tool }) {
       console.log({ tool });
 
       const createdToolRes = await db
@@ -58,10 +55,7 @@ export const toolResolver = {
       return createdToolRes;
     },
 
-    async updateTool(
-      _: unknown,
-      { tool }: { tool: Omit<Tool, "createdAt" | "updatedAt"> }
-    ): Promise<Tool> {
+    async updateTool(_, { tool }) {
       console.log({ tool });
 
       const { id, ...input } = tool;
@@ -78,10 +72,7 @@ export const toolResolver = {
       return updatedToolRes;
     },
 
-    async updateStatus(
-      _: unknown,
-      { statusInput }: { statusInput: { id: string; status: string } }
-    ): Promise<Tool> {
+    async updateStatus(_, { statusInput }) {
       console.log({ statusInput });
 
       const updatedStatusRes = await db
