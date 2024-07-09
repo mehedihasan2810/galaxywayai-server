@@ -24,8 +24,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
-// Note you must call `start()` on the `ApolloServer`
-// instance before passing the instance to `expressMiddleware`
+
 await server.start();
 
 app.use("/graphql", cors(), json(), expressMiddleware(server));
