@@ -7,9 +7,9 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { resolvers } from "./resolvers";
 import { typeDefs } from "./typeDefs";
 
-import "dotenv/config";
 import { tools } from "./lib/db/schema";
 import { db } from "./lib/db";
+import "dotenv/config";
 
 const PORT = process.env.PORT || 4000;
 const app = express();

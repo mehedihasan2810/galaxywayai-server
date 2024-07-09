@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDirs": ["src"],
+    "rootDirs": ["."],
     "outDir": "dist",
     "lib": ["es2020"],
     "target": "es2020",
@@ -8,8 +8,8 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "noImplicitAny": true,
-    "types": ["node"]
+    "types": ["node"],
+    "skipLibCheck": true 
   },
-  "include": ["./*.js", "src/**/*.ts", "test/**/*.ts"],
-  "exclude": ["node_modules"]
+ 
 }
