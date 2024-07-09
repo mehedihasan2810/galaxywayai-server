@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDirs": ["."],
+    "rootDirs": ["src"],
     "outDir": "dist",
     "lib": ["es2020"],
     "target": "es2020",
@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "types": ["node"],
-    "skipLibCheck": true 
+    "skipLibCheck": true
   },
- 
+  "exclude": ["node_modules"]
 }

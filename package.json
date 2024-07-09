@@ -5,8 +5,9 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "node server.js", 
-    "start3": "tsx src/index.ts", 
+    "start": "NODE_ENV=production tsx src/index.ts",
+    "start4": "tsx src/index.ts",
+    "start3": "node server.js",
     "start2": "tsx dist/src/index.js",
     "startt": "ts-node src/index.ts",
     "dev": "nodemon -I --exec node --experimental-specifier-resolution=node --loader ts-node/esm --no-warnings=ExperimentalWarning ./src/index.ts",
@@ -55,5 +56,8 @@
     "eslint-plugin-import": "^2.29.1",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
