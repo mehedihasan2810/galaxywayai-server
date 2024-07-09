@@ -5,8 +5,8 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "tsx dist/src/index.js",
-    "start2": "tsx src/index.ts",
+    "start": "tsx src/index.ts",
+    "start2": "tsx dist/src/index.js",
     "startt": "ts-node src/index.ts",
     "dev": "nodemon -I --exec node --experimental-specifier-resolution=node --loader ts-node/esm --no-warnings=ExperimentalWarning ./src/index.ts",
     "devv": "tsx watch src/index.ts",

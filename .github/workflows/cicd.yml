@@ -17,8 +17,8 @@ jobs:
           node-version: 20
       - name: Install Dependencies
         run: npm install
-      - name: Build the project
-        run: npm run build
+      # - name: Build the project
+      #   run: npm run build
       - name: Generate Deployment Package
         run: zip -r galaxywayai-server-build.zip .
       - name: Deploy to EB
