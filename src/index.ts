@@ -31,12 +31,12 @@ await server.start();
 app.use("/graphql", cors(), json(), expressMiddleware(server));
 
 app.get("/", async (_, res) => {
-  const toolsRes = await db.select().from(tools);
-  res.status(200).send({ message: "I am aliveee...", toolsRes });
+  res.status(200).send("I am aliveee...");
 });
 
 app.get("/test", async (_, res) => {
-  res.status(200).send({ message: "I am aliveee..." });
+  const toolsRes = await db.select().from(tools);
+  res.status(200).send({ message: "I am aliveee...", toolsRes });
 });
 
 // start the Express server
