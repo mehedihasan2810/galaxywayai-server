@@ -29,7 +29,7 @@ const app = express();
 // app.use("/graphql", cors(), json(), expressMiddleware(server));
 
 app.get("/", async (_, res) => {
-  res.status(200).send("I am aliveee...");
+  res.status(200).send("I am aliveee22...");
 });
 
 // app.get("/test", async (_, res) => {
