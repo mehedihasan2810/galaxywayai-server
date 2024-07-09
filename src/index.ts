@@ -29,7 +29,7 @@ await server.start();
 app.use("/graphql", cors(), json(), expressMiddleware(server));
 
 app.get("/", async (_, res) => {
-  res.status(200).send("I am aliveee22...");
+  res.status(200).send("I am aliveee3333...");
 });
 
 app.get("/test", async (_, res) => {
