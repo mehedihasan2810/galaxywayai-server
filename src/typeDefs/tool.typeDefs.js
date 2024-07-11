@@ -108,13 +108,14 @@ input StatusInput {
 
 
 type Query {
-    tools: [Tool]
+    tools: [Tool!]!
     tool(id: String!): Tool
-    publishedTools: [Tool]
+    publishedTools: [Tool!]!
 
-    oldTools: [OldTool]
+    oldTools: [OldTool!]!
     oldTool(id: String!): OldTool
-    publishedOldTools: [OldTool]
+    publishedOldTools: [OldTool!]!
+    searchTools(query: String!): [OldTool!]!
 }
 
 type Mutation {

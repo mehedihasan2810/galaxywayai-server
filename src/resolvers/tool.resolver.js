@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq, ilike, or } from "drizzle-orm";
 import { db } from "../lib/db/index.js";
 import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
@@ -181,6 +181,37 @@ export const toolResolver = {
       console.log({ toolRes });
 
       return toolRes;
+    },
+
+    async searchTools(_, { query }) {
+      console.log({ query });
+
+      let searchRes;
+
+      if (query === "all") {
+        searchRes = await db
+          .select()
+          .from(oldTools)
+          .where(eq(oldTools.status, "published"));
+      } else {
+        searchRes = await db
+          .select()
+          .from(oldTools)
+          .where(
+            and(
+              or(
+                ilike(oldTools.name, `%${query}%`),
+                ilike(oldTools.title, `%${query}%`)
+              ),
+              eq(oldTools.status, "published")
+            )
+          )
+          .execute();
+      }
+
+      console.log(searchRes);
+
+      return searchRes;
     },
   },
 
