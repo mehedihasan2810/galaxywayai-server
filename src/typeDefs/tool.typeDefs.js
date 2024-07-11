@@ -115,7 +115,7 @@ type Query {
     oldTools: [OldTool!]!
     oldTool(id: String!): OldTool
     publishedOldTools: [OldTool!]!
-    searchTools(query: String!, pricing: [String], categories: [String]): [OldTool!]!
+    searchTools(query: String!, pricing: [String], categories: [String], sortBy: String!): [OldTool!]!
 }
 
 type Mutation {

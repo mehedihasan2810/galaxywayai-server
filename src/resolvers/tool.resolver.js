@@ -1,4 +1,4 @@
-import { and, arrayContains, eq, ilike, or } from "drizzle-orm";
+import { and, arrayOverlaps, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { db } from "../lib/db/index.js";
 import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
@@ -183,51 +183,91 @@ export const toolResolver = {
       return toolRes;
     },
 
-    async searchTools(_, { query, pricing, categories }) {
-      console.log({ query, pricing, categories });
+    async searchTools(_, { query, pricing, categories, sortBy }) {
+      console.log({ query, pricing, categories, sortBy });
 
       const trimmedQuery = query.trim();
       const isPricing = pricing && pricing.length > 0;
       const isCategory = categories && categories.length > 0;
 
-      let searchRes;
+      let baseQuery = db
+        .select()
+        .from(oldTools)
+        .where(eq(oldTools.status, "published"));
+      const conditions = [];
 
-      if (isPricing || isCategory || trimmedQuery !== "") {
-        console.log("query");
-        searchRes = await db
-          .select()
-          .from(oldTools)
-          .where(
-            and(
-              or(
-                isPricing
-                  ? ilike(oldTools.pricingModel, pricing.join(","))
-                  : // ? arrayContains(oldTools.pricingModel, pricing)
-                    undefined,
-                isCategory
-                  ? arrayContains(oldTools.tags, categories)
-                  : undefined,
-                trimmedQuery
-                  ? or(
-                      ilike(oldTools.name, `%${trimmedQuery}%`),
-                      ilike(oldTools.title, `%${trimmedQuery}%`)
-                    )
-                  : undefined
-              ),
-              eq(oldTools.status, "published")
-            )
-          );
-      } else {
-        console.log("all");
-        searchRes = await db
-          .select()
-          .from(oldTools)
-          .where(eq(oldTools.status, "published"));
+      if (trimmedQuery) {
+        conditions.push(
+          or(
+            ilike(oldTools.name, `%${trimmedQuery}%`),
+            ilike(oldTools.title, `%${trimmedQuery}%`)
+          )
+        );
       }
 
-      console.log({ searchRes: searchRes.length });
+      if (isPricing) {
+        conditions.push(ilike(oldTools.pricingModel, pricing.join(",")));
+      }
+      if (isCategory) {
+        conditions.push(arrayOverlaps(oldTools.tags, categories));
+      }
+      // arrayOverlaps
 
-      return searchRes;
+      if (conditions.length > 0) {
+        baseQuery = baseQuery.where(and(...conditions));
+      }
+
+      baseQuery = baseQuery.orderBy(
+        sortBy === "newest" ? desc(oldTools.createdAt) : asc(oldTools.createdAt)
+      );
+
+      // let searchRes;
+      // if (isPricing || isCategory || trimmedQuery !== "") {
+      //   console.log("query");
+      //   searchRes = await db
+      //     .select()
+      //     .from(oldTools)
+      //     .where(
+      //       and(
+      //         or(
+      //           isPricing
+      //             ? ilike(oldTools.pricingModel, pricing.join(","))
+      //             : // ? arrayContains(oldTools.pricingModel, pricing)
+      //               undefined,
+      //           isCategory
+      //             ? arrayContains(oldTools.tags, categories)
+      //             : undefined,
+      //           trimmedQuery
+      //             ? or(
+      //                 ilike(oldTools.name, `%${trimmedQuery}%`),
+      //                 ilike(oldTools.title, `%${trimmedQuery}%`)
+      //               )
+      //             : undefined
+      //         ),
+      //         eq(oldTools.status, "published")
+      //       )
+      //     )
+      //     .orderBy(
+      //       sortBy === "newest"
+      //         ? desc(oldTools.createdAt)
+      //         : asc(oldTools.createdAt)
+      //     );
+      // } else {
+      //   console.log("all");
+      //   searchRes = await db
+      //     .select()
+      //     .from(oldTools)
+      //     .where(eq(oldTools.status, "published"))
+      //     .orderBy(
+      //       sortBy === "newest"
+      //         ? desc(oldTools.createdAt)
+      //         : asc(oldTools.createdAt)
+      //     );
+      // }
+
+      // const res = await searchRes;
+
+      return baseQuery.execute();
     },
   },
 
