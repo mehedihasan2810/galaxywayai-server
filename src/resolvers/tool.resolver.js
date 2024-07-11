@@ -3,7 +3,6 @@ import { db } from "../lib/db/index.js";
 import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
 import { nanoid } from "nanoid";
-// import axios from "axios";
 import OpenAI from "openai";
 import puppeteer from "puppeteer";
 import { oldTools, tools } from "../lib/db/schema.js";
