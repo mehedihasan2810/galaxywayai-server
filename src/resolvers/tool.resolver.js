@@ -1,4 +1,4 @@
-import { and, eq, ilike, or } from "drizzle-orm";
+import { and, arrayContains, eq, ilike, or } from "drizzle-orm";
 import { db } from "../lib/db/index.js";
 import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
@@ -183,33 +183,49 @@ export const toolResolver = {
       return toolRes;
     },
 
-    async searchTools(_, { query }) {
-      console.log({ query });
+    async searchTools(_, { query, pricing, categories }) {
+      console.log({ query, pricing, categories });
+
+      const trimmedQuery = query.trim();
+      const isPricing = pricing && pricing.length > 0;
+      const isCategory = categories && categories.length > 0;
 
       let searchRes;
 
-      if (query === "all") {
-        searchRes = await db
-          .select()
-          .from(oldTools)
-          .where(eq(oldTools.status, "published"));
-      } else {
+      if (isPricing || isCategory || trimmedQuery !== "") {
+        console.log("query");
         searchRes = await db
           .select()
           .from(oldTools)
           .where(
             and(
               or(
-                ilike(oldTools.name, `%${query}%`),
-                ilike(oldTools.title, `%${query}%`)
+                isPricing
+                  ? ilike(oldTools.pricingModel, pricing.join(","))
+                  : // ? arrayContains(oldTools.pricingModel, pricing)
+                    undefined,
+                isCategory
+                  ? arrayContains(oldTools.tags, categories)
+                  : undefined,
+                trimmedQuery
+                  ? or(
+                      ilike(oldTools.name, `%${trimmedQuery}%`),
+                      ilike(oldTools.title, `%${trimmedQuery}%`)
+                    )
+                  : undefined
               ),
               eq(oldTools.status, "published")
             )
-          )
-          .execute();
+          );
+      } else {
+        console.log("all");
+        searchRes = await db
+          .select()
+          .from(oldTools)
+          .where(eq(oldTools.status, "published"));
       }
 
-      console.log(searchRes);
+      console.log({ searchRes: searchRes.length });
 
       return searchRes;
     },
