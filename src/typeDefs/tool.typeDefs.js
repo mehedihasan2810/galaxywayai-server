@@ -116,6 +116,8 @@ type Query {
     oldTool(id: String!): OldTool
     publishedOldTools: [OldTool!]!
     searchTools(query: String!, pricing: [String], categories: [String], sortBy: String!): [OldTool!]!
+
+    heroSearchTools(query: String!): [OldTool!]!
 }
 
 type Mutation {

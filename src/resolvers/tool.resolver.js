@@ -207,6 +207,7 @@ export const toolResolver = {
       if (isPricing) {
         conditions.push(ilike(oldTools.pricingModel, pricing.join(",")));
       }
+
       if (isCategory) {
         conditions.push(arrayOverlaps(oldTools.tags, categories));
       }
@@ -267,6 +268,29 @@ export const toolResolver = {
       // const res = await searchRes;
 
       return baseQuery.execute();
+    },
+
+    async heroSearchTools(_, { query }) {
+      console.log({ query });
+
+      if (query.trim() === "") return [];
+
+      const searchRes = await db
+        .select()
+        .from(oldTools)
+        .where(
+          and(
+            or(
+              ilike(oldTools.name, `%${query}%`),
+              ilike(oldTools.title, `%${query}%`)
+            ),
+            eq(oldTools.status, "published")
+          )
+        );
+
+      console.log({ searchRes: searchRes.length });
+
+      return searchRes;
     },
   },
 
