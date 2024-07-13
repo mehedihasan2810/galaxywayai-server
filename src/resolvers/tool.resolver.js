@@ -157,13 +157,18 @@ export const toolResolver = {
       return toolsRes;
     },
 
-    async publishedOldTools() {
+    async publishedOldTools(_, { limit }) {
+      console.log({ limit });
+    
+     
+
       const publishedToolsRes = await db
         .select()
         .from(oldTools)
-        .where(eq(oldTools.status, "published"));
+        .where(eq(oldTools.status, "published"))
+        .limit(limit);
 
-      console.log({ publishedToolsRes });
+      console.log({ publishedToolsRes: publishedToolsRes.length });
 
       return publishedToolsRes;
     },

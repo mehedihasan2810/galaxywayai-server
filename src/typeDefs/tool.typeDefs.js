@@ -114,8 +114,8 @@ type Query {
 
     oldTools: [OldTool!]!
     oldTool(id: String!): OldTool
-    publishedOldTools: [OldTool!]!
-    searchTools(query: String!, pricing: [String], categories: [String], sortBy: String!): [OldTool!]!
+    publishedOldTools(limit: Int): [OldTool!]!
+    searchTools(query: String!, pricing: [String], categories: [String], sortBy: String!, limit: Int): [OldTool!]!
 
     heroSearchTools(query: String!): [OldTool!]!
 }
