@@ -9,7 +9,9 @@ import { oldTools, tools } from "../lib/db/schema.js";
 import "dotenv/config";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  // apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
 });
 
 const MAX_TOKEN = 100000;
@@ -159,8 +161,6 @@ export const toolResolver = {
 
     async publishedOldTools(_, { limit }) {
       console.log({ limit });
-    
-     
 
       const publishedToolsRes = await db
         .select()
@@ -351,6 +351,7 @@ export const toolResolver = {
       console.log({ url });
 
       const openaiApiKey = process.env.OPENAI_API_KEY;
+
       if (!openaiApiKey) {
         console.error("OpenAI API key is not set in environment variables.");
         return {
@@ -463,7 +464,8 @@ export const toolResolver = {
                 : textContent,
           },
         ],
-        model: "gpt-4o",
+        // model: "gpt-4o",
+        model: "Llama3-70b-8192",
         // Send the user ID through per OpenAI's best practices
         // for safety: https://platform.openai.com/docs/guides/safety-best-practices/end-user-ids
         user: nanoid(),
@@ -504,11 +506,46 @@ export const toolResolver = {
 
       // const r = openaiResponse.data.choices[0].message.content;
 
-      const promptRes = JSON.parse(r);
-      console.log({ promptRes });
+      const {
+        name,
+        title,
+        pricingModel,
+        category,
+        categories,
+        features,
+        blog,
+      } = JSON.parse(r);
+
+      console.log({
+        name,
+        title,
+        pricingModel,
+        category,
+        categories,
+        features,
+        blog,
+      });
 
       const openaiEnd = Date.now();
       console.log(`OPENAI GENERATION END. ${openaiEnd - openaiStart} ms`);
+
+      const toolRes = await db
+        .insert(tools)
+        .values({
+          name,
+          title,
+          url,
+          pricingModel,
+          category,
+          categories,
+          features,
+          blog,
+          status: "draft",
+        })
+        .returning()
+        .then((res) => res[0]);
+
+      console.log({ toolRes });
 
       const wholeApiEnd = Date.now();
       console.log(`API TOOK ${wholeApiEnd - wholeApiStart} ms to complete`);

@@ -34,7 +34,7 @@ export const tools = pgTable("tools", {
   category: text("category"),
   categories: text("categories").array(),
   pricingModel: text("pricing_model"),
-  feature: text("feature"),
+  features: text("features").array(),
   blog: text("blog"),
   label: text("label"),
   profileImage: text("profile_image"),
