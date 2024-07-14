@@ -37,7 +37,7 @@ export const tools = pgTable("tools", {
   features: text("features").array(),
   blog: text("blog"),
   label: text("label"),
-  profileImage: text("profile_image"),
+  logo: text("logo"),
   image: text("image"),
   status: text("status"),
   suggestions: jsonb("suggestions").array(),

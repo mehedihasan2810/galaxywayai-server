@@ -15,15 +15,15 @@ type Suggestions {
 type Tool {
     id: ID!
     name: String
-    description: String
+    title: String
     url: String
     shortUrl: String
-    profileImage: String
+    logo: String
     image: String
     category: String
     categories: [String]
     pricingModel: String
-    feature: String
+    features: [String]
     blog: String
     label: String
     suggestions: [Suggestions]
@@ -123,8 +123,8 @@ type Query {
 type Mutation {
     createTool(tool: CreateToolInput): Tool
     updateTool(tool: UpdateToolInput): Tool
-    # deleteTool(id: String): Tool
+    deleteTool(id: String, logoUrl: String, imageUrl: String): Tool
     updateStatus(statusInput: StatusInput): Tool
-    generateTool(url: String): GenerateToolRes
+    generateTool(url: String): Tool
 }
 `;
