@@ -393,10 +393,12 @@ export const toolResolver = {
       const result = await Promise.all(
         [logoUrl, imageUrl].map(async (url) => {
           if (url) {
-            const key = url.replace(
-              "https://galaxywayai.s3.eu-west-2.amazonaws.com/",
-              ""
-            );
+            // const key = url.replace(
+            //   "https://galaxywayai.s3.eu-west-2.amazonaws.com/",
+            //   ""
+            // );
+
+            const key = url.split(".com/").slice(-1)[0];
 
             console.log({ key });
 
