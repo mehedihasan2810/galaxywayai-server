@@ -15,6 +15,7 @@ import {
 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import "dotenv/config";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Client = new S3Client({
   region: process.env.S3_BUCKET_REGION,
@@ -161,7 +162,7 @@ export const toolResolver = {
         .where(eq(tools.id, id))
         .then((res) => res[0]);
 
-      console.log({ toolRes });
+      // console.log({ toolRes });
 
       return toolRes;
     },
@@ -311,6 +312,47 @@ export const toolResolver = {
       console.log({ searchRes: searchRes.length });
 
       return searchRes;
+    },
+
+    async signedUrl(_, { signedUrlInput: files }, _context, _info) {
+      // console.log({ files });
+
+      const urls = {};
+
+      for (const file of files) {
+        const toolWebImageKey =
+          file.keyName === "imageFile"
+            ? `images/ai-tool/web-image/${file.fileName}-${Date.now()}-${
+                file.fileType.split("/")[1]
+              }`
+            : `images/ai-tool/logo/${file.fileName}-${Date.now()}-${
+                file.fileType.split("/")[1]
+              }`;
+
+        const putObjectCommand = new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: toolWebImageKey,
+          // Key: generateFileName2(fileName, file.fileType.split("/")[1]),
+          ContentType: file.fileType,
+          ContentLength: file.fileSize,
+          ChecksumSHA256: file.checksum,
+          // Let's also add some metadata which is stored in s3.
+          //  Metadata: {
+          //   userId: session.user.id
+          // },
+        });
+
+        const url = await getSignedUrl(
+          s3Client,
+          putObjectCommand,
+          { expiresIn: 60 * 5 } // 5 minutes
+        );
+        urls[file.keyName] = url;
+      }
+
+      // console.log({ urls });
+
+      return urls;
     },
   },
 
@@ -463,6 +505,7 @@ export const toolResolver = {
           categories,
           features,
           blog,
+          label: "New",
           status: "draft",
         })
         .returning()
@@ -474,6 +517,26 @@ export const toolResolver = {
       console.log(`API TOOK ${wholeApiEnd - wholeApiStart} ms to complete`);
 
       return toolRes;
+    },
+
+    async deleteFile(_, { deleteFileInput: url }, _context) {
+      console.log({ url });
+      console.log("DELETE FILE STARTED");
+
+      const key = url.split(".com/").slice(-1)[0];
+
+      // console.log({ key, url });
+
+      const deleteParams = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: key,
+      };
+
+      console.log({ deleteParams });
+
+      await s3Client.send(new DeleteObjectCommand(deleteParams));
+      console.log("DELETE FILE ENDED");
+      return { data: "Successfully deleted the file", error: null };
     },
   },
 };
@@ -697,9 +760,10 @@ async function uploadToolFiles(ssBuffer, scrapedToolLogoBuffer, name) {
       const command = new PutObjectCommand(params);
       const response = await s3Client.send(command);
 
-      const url = `https://${process.env.S3_BUCKET_NAME}.s3.${
-        process.env.S3_BUCKET_REGION
-      }.amazonaws.com/${encodeURIComponent(toolWebImageKey)}`;
+      // const url = `https://${process.env.S3_BUCKET_NAME}.s3.${
+      //   process.env.S3_BUCKET_REGION
+      // }.amazonaws.com/${encodeURIComponent(toolWebImageKey)}`;
+      const url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${toolWebImageKey}`;
 
       console.log({ url });
 
@@ -725,9 +789,10 @@ async function uploadToolFiles(ssBuffer, scrapedToolLogoBuffer, name) {
       const command = new PutObjectCommand(params);
       const response = await s3Client.send(command);
 
-      const logoUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${
-        process.env.S3_BUCKET_REGION
-      }.amazonaws.com/${encodeURIComponent(toolLogoKey)}`;
+      // const logoUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${
+      //   process.env.S3_BUCKET_REGION
+      // }.amazonaws.com/${encodeURIComponent(toolLogoKey)}`;
+      const logoUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${toolLogoKey}`;
 
       console.log({ logoUrl });
 

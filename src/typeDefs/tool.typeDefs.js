@@ -66,6 +66,16 @@ type GenerateToolRes {
     error: String
 }
 
+type SignedUrl {
+  imageFile: String
+  logoFile: String
+}
+
+type MutationSongResponse {
+  error: String
+  data: String
+}
+
 input CreateToolInput {
     name: String
     description: String
@@ -86,15 +96,15 @@ input CreateToolInput {
 input UpdateToolInput {
     id: String
     name: String
-    description: String
+    title: String
     url: String
     shortUrl: String
-    profileImage: String
     image: String
+    logo: String
     category: String
     categories: [String]
     pricingModel: String
-    feature: String
+    features: [String]
     blog: String
     label: String
     suggestions: [SuggestionsInput]
@@ -104,6 +114,14 @@ input UpdateToolInput {
 input StatusInput {
     id: String!
     status: String!
+}
+
+input SignedUrlInput {
+  keyName: String!,
+  fileType: String!,
+  fileSize: Int!,
+  checksum: String!,
+  fileName: String!
 }
 
 
@@ -118,6 +136,8 @@ type Query {
     searchTools(query: String!, pricing: [String], categories: [String], sortBy: String!, limit: Int): [OldTool!]!
 
     heroSearchTools(query: String!): [OldTool!]!
+
+    signedUrl(signedUrlInput: [SignedUrlInput!]!): SignedUrl!
 }
 
 type Mutation {
@@ -126,5 +146,6 @@ type Mutation {
     deleteTool(id: String, logoUrl: String, imageUrl: String): Tool
     updateStatus(statusInput: StatusInput): Tool
     generateTool(url: String): Tool
+    deleteFile(deleteFileInput: String!): MutationSongResponse!
 }
 `;
