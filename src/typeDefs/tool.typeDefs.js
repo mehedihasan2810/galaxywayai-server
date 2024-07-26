@@ -76,6 +76,11 @@ type MutationSongResponse {
   data: String
 }
 
+type SearchToolsRes {
+    tools: [Tool]!
+    count: Int!
+}
+
 input CreateToolInput {
     name: String
     description: String
@@ -128,14 +133,14 @@ input SignedUrlInput {
 type Query {
     tools: [Tool!]!
     tool(id: String!): Tool
-    publishedTools: [Tool!]!
+    publishedTools(limit: Int): [Tool]!
 
-    oldTools: [OldTool!]!
+    oldTools: [OldTool]!
     oldTool(id: String!): OldTool
-    publishedOldTools(limit: Int): [OldTool!]!
-    searchTools(query: String!, pricing: [String], categories: [String], sortBy: String!, limit: Int): [OldTool!]!
+    publishedOldTools(limit: Int): [OldTool]!
+    searchTools(query: String!, pricing: [String], categories: [String], sortBy: String!, limit: Int): SearchToolsRes!
 
-    heroSearchTools(query: String!): [OldTool!]!
+    heroSearchTools(query: String!): [OldTool]!
 
     signedUrl(signedUrlInput: [SignedUrlInput!]!): SignedUrl!
 }

@@ -1,4 +1,13 @@
-import { and, arrayOverlaps, asc, desc, eq, ilike, or } from "drizzle-orm";
+import {
+  and,
+  arrayOverlaps,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  or,
+} from "drizzle-orm";
 import { db } from "../lib/db/index.js";
 import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
@@ -107,7 +116,7 @@ const PROMPT_COMMON = [
 6. features: An array of strings, only including the following options: Waitlist, Open Source, Mobile App, API, Discord Community, Browser Extension. Include only the features that apply to the website.
 7. blog: An HTML string containing an informative blog post about the website. The blog should have the following structure:
    - Main title (h1)
-   - Cover image: Use this URL: https://melodymaker.s3.eu-west-2.amazonaws.com/1d127e74bb7d7ffbb9b53e3f158640cee0e4f1953177d684ffaee7d5e1330cdb
+   - Cover image: Use this URL: https://galaxywayai.s3.eu-west-2.amazonaws.com/images/ai-tool/web-image/Sequens.ai-1721308938537-jpeg
    - Short description (p)
    - Multiple sections, each with:
      - Section title (h2)
@@ -142,11 +151,13 @@ export const toolResolver = {
       return toolsRes;
     },
 
-    async publishedTools() {
+    async publishedTools(_, { limit }) {
+      console.log({ limit });
       const publishedToolsRes = await db
         .select()
         .from(tools)
-        .where(eq(tools.status, "published"));
+        .where(eq(tools.status, "published"))
+        .limit(limit);
 
       console.log({ publishedToolsRes });
 
@@ -203,8 +214,8 @@ export const toolResolver = {
       return toolRes;
     },
 
-    async searchTools(_, { query, pricing, categories, sortBy }) {
-      console.log({ query, pricing, categories, sortBy });
+    async searchTools(_, { query, pricing, categories, sortBy, limit }) {
+      console.log({ query, pricing, categories, sortBy, limit });
 
       const trimmedQuery = query.trim();
       const isPricing = pricing && pricing.length > 0;
@@ -212,25 +223,25 @@ export const toolResolver = {
 
       let baseQuery = db
         .select()
-        .from(oldTools)
-        .where(eq(oldTools.status, "published"));
+        .from(tools)
+        .where(eq(tools.status, "published"));
       const conditions = [];
 
       if (trimmedQuery) {
         conditions.push(
           or(
-            ilike(oldTools.name, `%${trimmedQuery}%`),
-            ilike(oldTools.title, `%${trimmedQuery}%`)
+            ilike(tools.name, `%${trimmedQuery}%`),
+            ilike(tools.title, `%${trimmedQuery}%`)
           )
         );
       }
 
       if (isPricing) {
-        conditions.push(ilike(oldTools.pricingModel, pricing.join(",")));
+        conditions.push(ilike(tools.pricingModel, pricing.join(",")));
       }
 
       if (isCategory) {
-        conditions.push(arrayOverlaps(oldTools.tags, categories));
+        conditions.push(arrayOverlaps(tools.tags, categories));
       }
       // arrayOverlaps
 
@@ -239,8 +250,21 @@ export const toolResolver = {
       }
 
       baseQuery = baseQuery.orderBy(
-        sortBy === "newest" ? desc(oldTools.createdAt) : asc(oldTools.createdAt)
+        sortBy === "newest" ? desc(tools.createdAt) : asc(tools.createdAt)
       );
+
+      baseQuery = baseQuery.limit(limit);
+
+      const [searchedTools, searchedToolsLength] = await Promise.all([
+        baseQuery,
+        (async () => {
+          return (await baseQuery).length;
+        })(),
+      ]);
+
+      console.log({ searchedToolsLength, limit });
+
+      return { tools: searchedTools, count: searchedToolsLength };
 
       // let searchRes;
       // if (isPricing || isCategory || trimmedQuery !== "") {
@@ -287,8 +311,6 @@ export const toolResolver = {
       // }
 
       // const res = await searchRes;
-
-      return baseQuery.execute();
     },
 
     async heroSearchTools(_, { query }) {
@@ -298,14 +320,14 @@ export const toolResolver = {
 
       const searchRes = await db
         .select()
-        .from(oldTools)
+        .from(tools)
         .where(
           and(
             or(
-              ilike(oldTools.name, `%${query}%`),
-              ilike(oldTools.title, `%${query}%`)
+              ilike(tools.name, `%${query}%`),
+              ilike(tools.title, `%${query}%`)
             ),
-            eq(oldTools.status, "published")
+            eq(tools.status, "published")
           )
         );
 
@@ -342,12 +364,15 @@ export const toolResolver = {
           // },
         });
 
-        const url = await getSignedUrl(
-          s3Client,
-          putObjectCommand,
-          { expiresIn: 60 * 5 } // 5 minutes
-        );
-        urls[file.keyName] = url;
+        // TODO
+        // const url = await getSignedUrl(
+        //   s3Client,
+        //   putObjectCommand,
+        //   { expiresIn: 60 * 5 } // 5 minutes
+        // );
+        // urls[file.keyName] = url;
+
+        urls[file.keyName] = "/assets/capital-ai.png?foo";
       }
 
       // console.log({ urls });
@@ -373,6 +398,26 @@ export const toolResolver = {
 
     async updateTool(_, { tool }) {
       console.log({ tool });
+
+      // TODO
+      return {
+        id: "1",
+        name: "Galaxyway AI 10",
+        title:
+          "Sequens.ai - Revolutionizing Content Creation with AI and Expert Reviews",
+        url: "https://galaxywayai.com",
+        shortUrl: "https://galaxywayai.com",
+        category: "Copywriting",
+        categories: ["Copywriting", "Summarizer", "Story Teller"],
+        features: ["Waitlist", "Open Source", "Mobile App"],
+        pricingModel: "Paid",
+        blog: `<h1>Sequens.ai - Revolutionizing Content Creation with AI and Expert Reviews</h1><img src="/assets/melodymaker-img3.jpeg" alt="New Image"><p>Sequens.ai is designed to provide high-quality, AI-generated content that is fine-tuned by B2B marketers to increase your lead pipeline and improve multi-channel engagement. This platform offers a seamless blend of artificial intelligence and human expertise to deliver content that stands out.</p><h2>Purpose</h2><p>Sequens.ai aims to empower businesses by offering scalable content solutions tailored to their unique needs. By combining AI technology with the insights of B2B marketing experts, Sequens.ai ensures content marketing efforts are both effective and efficient.</p><h2>Key Features and Services</h2><ul><li><p><strong>AI-Driven Content Creation</strong>: Sophisticated AI generates high-quality content suited for various channels.</p></li><li><p><strong>Expert Content Review</strong>: Professional marketers and content experts review and refine AI-generated content.</p></li><li><p><strong>SEO Focus</strong>: The platform identifies top SEO keywords to enhance your content’s visibility and drive traffic.</p></li><li><p><strong>Multi-Channel Content</strong>: Customizes content for platforms like blogs, social media, and email marketing campaigns.</p></li><li><p><strong>Data Security</strong>: Guarantees the confidentiality and security of your clients' data.</p></li><li><p><strong>Custom Brand Voice</strong>: Ensures the content reflects your unique brand’s tone and style.</p></li></ul><h2>Benefits</h2><p>Using Sequens.ai, users can save time on content creation and focus on other critical business tasks. The blend of AI and human expertise ensures content is not only scalable but also high-quality and engaging, which is key to increasing traffic and lead generation.</p><h2>Unique Selling Points and Innovations</h2><p>Sequens.ai stands out due to its unique approach of integrating human review with AI capabilities, ensuring a level of quality that fully automated systems cannot achieve. Additionally, the platform places a strong emphasis on SEO, further enhancing the effectiveness of the content.</p><h2>Target Audience</h2><p>The platform is ideal for B2B companies looking to streamline their content marketing efforts, digital marketing agencies, and businesses seeking to enhance their lead generation and online presence.</p><h2>How to Get Started</h2><p>Follow these steps to start using Sequens.ai:</p><ul><li><p><strong>Introduce Your Brand</strong>: Share details about your business, target audience, and unique value proposition.</p></li><li><p><strong>Get Assigned a Project Owner</strong>: Collaborate with a dedicated expert who will understand your specific needs.</p></li><li><p><strong>Content Creation by AI</strong>: The AI, embodying various digital roles, creates high-quality content for your brand.</p></li><li><p><strong>Expert Review and Refine</strong>: Human experts review and refine the content based on your feedback.</p></li><li><p><strong>Publish and Analyze</strong>: Once ready, publish your content across channels and analyze the engagement.</p></li></ul><p>Start generating your first pieces of content today and enhance your marketing strategy with Sequens.ai’s innovative platform.</p>`,
+        label: "New",
+        logo: "/assets/melodymaker-img3.jpeg",
+        image: "/assets/melodymaker-img3.jpeg",
+        status: "published",
+        suggestions: [],
+      };
 
       const { id, ...input } = tool;
 
@@ -523,6 +568,9 @@ export const toolResolver = {
 
     async deleteFile(_, { deleteFileInput: url }, _context) {
       console.log({ url });
+
+      // TODO
+      return { data: "Successfully deleted the file", error: null };
       console.log("DELETE FILE STARTED");
 
       const key = url.split(".com/").slice(-1)[0];

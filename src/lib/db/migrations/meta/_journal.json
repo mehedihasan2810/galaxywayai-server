@@ -36,6 +36,13 @@
       "when": 1720964322556,
       "tag": "0004_fancy_aqueduct",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1721575193177,
+      "tag": "0005_bright_lightspeed",
+      "breakpoints": true
     }
   ]
 }
