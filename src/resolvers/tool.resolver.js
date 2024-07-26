@@ -1,12 +1,4 @@
-import {
-  and,
-  arrayOverlaps,
-  asc,
-  desc,
-  eq,
-  ilike,
-  or,
-} from "drizzle-orm";
+import { and, arrayOverlaps, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { db } from "../lib/db/index.js";
 import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
@@ -25,6 +17,7 @@ import sharp from "sharp";
 import "dotenv/config";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { PROMPT_COMMON } from "../constants/common-prompt.js";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Client = new S3Client({
   region: process.env.S3_BUCKET_REGION,
@@ -103,7 +96,6 @@ const chromiumPack =
 // 2. description: A brief 1-2 sentence overview of the website's content and purpose.
 
 // System and assistant token size is 520
-
 
 export const toolResolver = {
   Query: {
@@ -301,7 +293,7 @@ export const toolResolver = {
     },
 
     async signedUrl(_, { signedUrlInput: files }, _context, _info) {
-      // console.log({ files });
+      console.log({ files });
 
       const urls = {};
 
@@ -328,18 +320,15 @@ export const toolResolver = {
           // },
         });
 
-        // TODO
-        // const url = await getSignedUrl(
-        //   s3Client,
-        //   putObjectCommand,
-        //   { expiresIn: 60 * 5 } // 5 minutes
-        // );
-        // urls[file.keyName] = url;
-
-        urls[file.keyName] = "/assets/capital-ai.png?foo";
+        const url = await getSignedUrl(
+          s3Client,
+          putObjectCommand,
+          { expiresIn: 60 * 5 } // 5 minutes
+        );
+        urls[file.keyName] = url;
       }
 
-      // console.log({ urls });
+      console.log({ urls });
 
       return urls;
     },
@@ -362,26 +351,6 @@ export const toolResolver = {
 
     async updateTool(_, { tool }) {
       console.log({ tool });
-
-      // TODO
-      return {
-        id: "1",
-        name: "Galaxyway AI 10",
-        title:
-          "Sequens.ai - Revolutionizing Content Creation with AI and Expert Reviews",
-        url: "https://galaxywayai.com",
-        shortUrl: "https://galaxywayai.com",
-        category: "Copywriting",
-        categories: ["Copywriting", "Summarizer", "Story Teller"],
-        features: ["Waitlist", "Open Source", "Mobile App"],
-        pricingModel: "Paid",
-        blog: `<h1>Sequens.ai - Revolutionizing Content Creation with AI and Expert Reviews</h1><img src="/assets/melodymaker-img3.jpeg" alt="New Image"><p>Sequens.ai is designed to provide high-quality, AI-generated content that is fine-tuned by B2B marketers to increase your lead pipeline and improve multi-channel engagement. This platform offers a seamless blend of artificial intelligence and human expertise to deliver content that stands out.</p><h2>Purpose</h2><p>Sequens.ai aims to empower businesses by offering scalable content solutions tailored to their unique needs. By combining AI technology with the insights of B2B marketing experts, Sequens.ai ensures content marketing efforts are both effective and efficient.</p><h2>Key Features and Services</h2><ul><li><p><strong>AI-Driven Content Creation</strong>: Sophisticated AI generates high-quality content suited for various channels.</p></li><li><p><strong>Expert Content Review</strong>: Professional marketers and content experts review and refine AI-generated content.</p></li><li><p><strong>SEO Focus</strong>: The platform identifies top SEO keywords to enhance your content’s visibility and drive traffic.</p></li><li><p><strong>Multi-Channel Content</strong>: Customizes content for platforms like blogs, social media, and email marketing campaigns.</p></li><li><p><strong>Data Security</strong>: Guarantees the confidentiality and security of your clients' data.</p></li><li><p><strong>Custom Brand Voice</strong>: Ensures the content reflects your unique brand’s tone and style.</p></li></ul><h2>Benefits</h2><p>Using Sequens.ai, users can save time on content creation and focus on other critical business tasks. The blend of AI and human expertise ensures content is not only scalable but also high-quality and engaging, which is key to increasing traffic and lead generation.</p><h2>Unique Selling Points and Innovations</h2><p>Sequens.ai stands out due to its unique approach of integrating human review with AI capabilities, ensuring a level of quality that fully automated systems cannot achieve. Additionally, the platform places a strong emphasis on SEO, further enhancing the effectiveness of the content.</p><h2>Target Audience</h2><p>The platform is ideal for B2B companies looking to streamline their content marketing efforts, digital marketing agencies, and businesses seeking to enhance their lead generation and online presence.</p><h2>How to Get Started</h2><p>Follow these steps to start using Sequens.ai:</p><ul><li><p><strong>Introduce Your Brand</strong>: Share details about your business, target audience, and unique value proposition.</p></li><li><p><strong>Get Assigned a Project Owner</strong>: Collaborate with a dedicated expert who will understand your specific needs.</p></li><li><p><strong>Content Creation by AI</strong>: The AI, embodying various digital roles, creates high-quality content for your brand.</p></li><li><p><strong>Expert Review and Refine</strong>: Human experts review and refine the content based on your feedback.</p></li><li><p><strong>Publish and Analyze</strong>: Once ready, publish your content across channels and analyze the engagement.</p></li></ul><p>Start generating your first pieces of content today and enhance your marketing strategy with Sequens.ai’s innovative platform.</p>`,
-        label: "New",
-        logo: "/assets/melodymaker-img3.jpeg",
-        image: "/assets/melodymaker-img3.jpeg",
-        status: "published",
-        suggestions: [],
-      };
 
       const { id, ...input } = tool;
 
@@ -533,8 +502,6 @@ export const toolResolver = {
     async deleteFile(_, { deleteFileInput: url }, _context) {
       console.log({ url });
 
-      // TODO
-      return { data: "Successfully deleted the file", error: null };
       console.log("DELETE FILE STARTED");
 
       const key = url.split(".com/").slice(-1)[0];
