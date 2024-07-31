@@ -604,9 +604,12 @@ async function scrapeWebsite(url) {
     }),
 
     page.evaluate(() => {
+      // const faviconLink =
+      //   document.querySelector("link[rel~='icon']") ||
+      //   document.querySelector("link[rel='shortcut icon']");
       const faviconLink =
-        document.querySelector("link[rel~='icon']") ||
-        document.querySelector("link[rel='shortcut icon']");
+        document.querySelector("link[rel~='icon'][type='image/png']") ||
+        document.querySelector("link[rel='shortcut icon'][type='image/png']");
       return faviconLink ? faviconLink.href : null;
     }),
 
@@ -749,7 +752,7 @@ async function uploadToolFiles(ssBuffer, scrapedToolLogoBuffer, name) {
 
       console.log({ url });
 
-      console.log("Upload successful ", response);
+      console.log("Image upload successful ", response);
       return url;
     })(),
     (async function uploadToolLogoImage() {
@@ -778,7 +781,7 @@ async function uploadToolFiles(ssBuffer, scrapedToolLogoBuffer, name) {
 
       console.log({ logoUrl });
 
-      console.log("Upload successful ", response);
+      console.log("Logo upload successful ", response);
       return logoUrl;
     })(),
   ]);
