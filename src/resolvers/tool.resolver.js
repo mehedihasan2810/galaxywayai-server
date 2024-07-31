@@ -477,7 +477,7 @@ export const toolResolver = {
         .values({
           name,
           title,
-          url,
+          url: `${url}/?ref=galaxywayai.com`,
           logo: toolLogoImageUrl,
           image: toolWebImageUrl,
           pricingModel,
@@ -567,7 +567,7 @@ async function scrapeWebsite(url) {
   const page = await browser.newPage();
   await page.setViewport({ width: 1200, height: 630 });
   // Navigate to the URL
-  await page.goto(url);
+  await page.goto(url, { waitUntil: "load", timeout: 0 });
 
   let [textContent, scrapedToolLogoUrl, ssBuffer] = await Promise.all([
     page.evaluate(() => {
