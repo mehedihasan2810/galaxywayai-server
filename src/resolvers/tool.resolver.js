@@ -653,7 +653,8 @@ async function generateToolData(textContent) {
         content: textContent,
       },
     ],
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
+    // model: "gpt-4o",
     max_tokens: MAX_OUTPUT_TOKEN,
     // model: "Llama3-70b-8192",
     // Send the user ID through per OpenAI's best practices
