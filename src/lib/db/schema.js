@@ -68,6 +68,21 @@ export const requestedTools = pgTable("requested_tools", {
     .notNull(),
 });
 
+export const contacts = pgTable("contacts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phoneNumber: text("phone_number"),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 export const oldTools = pgTable("old_tools", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name"),

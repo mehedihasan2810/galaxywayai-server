@@ -43,6 +43,13 @@
       "when": 1721575193177,
       "tag": "0005_bright_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1722520639950,
+      "tag": "0006_amusing_christian_walker",
+      "breakpoints": true
     }
   ]
 }
