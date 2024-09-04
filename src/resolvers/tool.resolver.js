@@ -3,7 +3,6 @@ import { db } from "../lib/db/index.js";
 import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
 import { nanoid } from "nanoid";
-import OpenAI from "openai";
 import puppeteer from "puppeteer";
 import { oldTools, tools } from "../lib/db/schema.js";
 import { encoding_for_model } from "tiktoken";
@@ -11,30 +10,17 @@ import {
   DeleteObjectCommand,
   // DeleteObjectCommand,
   PutObjectCommand,
-  S3Client,
 } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import "dotenv/config";
 // import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { PROMPT_COMMON } from "../constants/common-prompt.js";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
-const s3Client = new S3Client({
-  region: process.env.S3_BUCKET_REGION,
-  credentials: {
-    accessKeyId: process.env.S3_ACCESS_KEY,
-    secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  },
-});
+import { s3Client } from "../lib/s3-client.js";
+import { openai } from "../lib/openai.js";
 
 const MAX_INPUT_TOKEN = 1000; // 1000 will be scraped content's max token  but with system and assistant message total token will be 1520
 const MAX_OUTPUT_TOKEN = 1000;
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  // apiKey: process.env.GROQ_API_KEY,
-  // baseURL: "https://api.groq.com/openai/v1",
-});
 
 const chromiumPack =
   "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar";
