@@ -562,7 +562,6 @@ async function scrapeWebsite(url) {
   console.log("AFTER LAUNCH");
 
   const page = await browser.newPage();
-
   console.log("AFTER NEW PAGE");
 
   await page.setViewport({ width: 1200, height: 630 });
@@ -570,9 +569,13 @@ async function scrapeWebsite(url) {
   console.log("AFTER VIEWPORT");
 
   try {
+    const navigationPromise = page.waitForNavigation({
+      waitUntil: "networkidle0",
+    });
     const gotoStart = Date.now();
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     const gotoEnd = Date.now();
+    await navigationPromise;
 
     console.log(`GOTO TOOK. ${gotoEnd - gotoStart} ms`);
   } catch (error) {
@@ -648,6 +651,7 @@ async function scrapeWebsite(url) {
 
   console.log({ scrapedToolLogoBuffer });
 
+  await page.close();
   await browser.close();
 
   console.log({ textContent });
