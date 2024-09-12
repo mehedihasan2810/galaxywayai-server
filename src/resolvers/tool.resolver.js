@@ -581,6 +581,7 @@ async function scrapeWebsite(url) {
       timeout: 3000000,
     });
     const gotoEnd = Date.now();
+    await page.waitForSelector("body");
 
     await delay(1000);
 
