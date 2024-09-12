@@ -550,6 +550,9 @@ async function scrapeWebsite(url) {
     ? await chromium.executablePath(chromiumPack)
     : puppeteer.executablePath();
 
+
+    console.log("BEFORE LAUNCH")
+
   const browser = await puppeteerCore.launch({
     args: chromiumArgs,
     executablePath: executablePath,
@@ -557,10 +560,20 @@ async function scrapeWebsite(url) {
     // ignoreHTTPSErrors: true,
   });
 
+  console.log("AFTER LAUNCH")
+
   const page = await browser.newPage();
+
+  console.log("AFTER NEW PAGE")
+
   await page.setViewport({ width: 1200, height: 630 });
+
+  console.log("AFTER VIEWPORT")
+
   // Navigate to the URL
   await page.goto(url, { waitUntil: "load", timeout: 0 });
+
+  console.log("AFTER GOTO")
 
   let [textContent, scrapedToolLogoUrl, ssBuffer] = await Promise.all([
     page.evaluate(() => {
