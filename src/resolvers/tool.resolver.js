@@ -86,7 +86,10 @@ const chromiumPack =
 export const toolResolver = {
   Query: {
     async tools() {
-      const toolsRes = await db.select().from(tools);
+      const toolsRes = await db
+        .select()
+        .from(tools)
+        .orderBy(desc(tools.updatedAt));
 
       console.log({ toolsRes });
 
@@ -99,6 +102,7 @@ export const toolResolver = {
         .select()
         .from(tools)
         .where(eq(tools.status, "published"))
+        .orderBy(desc(tools.updatedAt))
         .limit(limit);
 
       console.log({ publishedToolsRes });
@@ -156,7 +160,10 @@ export const toolResolver = {
       return toolRes;
     },
 
-    async searchTools(_, { query, pricing, categories, sortBy, limit }) {
+    async searchTools(
+      _,
+      { query, pricing, categories, sortBy = "newest", limit }
+    ) {
       console.log({ query, pricing, categories, sortBy, limit });
 
       const trimmedQuery = query.trim();
