@@ -18,9 +18,6 @@ import { PROMPT_COMMON } from "../constants/common-prompt.js";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3Client } from "../lib/s3-client.js";
 import { openai } from "../lib/openai.js";
-import os from "os";
-
-const platform = os.platform();
 
 const MAX_INPUT_TOKEN = 1000; // 1000 will be scraped content's max token  but with system and assistant message total token will be 1520
 const MAX_OUTPUT_TOKEN = 1000;
@@ -540,56 +537,27 @@ async function scrapeWebsite(url) {
 
   console.log({ isProduction });
 
-  // const chromiumArgs = isProduction
-  //   ? chromium.args
-  //   : [
-  //       "--disable-setuid-sandbox",
-  //       "--no-sandbox",
-  //       "--single-process",
-  //       "--no-zygote",
-  //     ];
+  const chromiumArgs = isProduction
+    ? chromium.args
+    : [
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+        "--single-process",
+        "--no-zygote",
+      ];
 
-  // const executablePath = isProduction
-  //   ? await chromium.executablePath(chromiumPack)
-  //   : puppeteer.executablePath();
+  const executablePath = isProduction
+    ? await chromium.executablePath(chromiumPack)
+    : puppeteer.executablePath();
 
   console.log("BEFORE LAUNCH");
 
-  console.log({ platform });
-
-  let browserConfig = {};
-  if (platform === "linux") {
-    browserConfig = {
-      executablePath: "/usr/bin/google-chrome",
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process",
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-      ],
-    };
-  } else {
-    browserConfig = {
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process",
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-      ],
-    };
-  }
-
-  const browser = await puppeteer.launch(browserConfig);
-  // const browser = await puppeteerCore.launch({
-  //   args: chromiumArgs,
-  //   executablePath: executablePath,
-  //   headless: true,
-  //   // ignoreHTTPSErrors: true,
-  // });
+  const browser = await puppeteerCore.launch({
+    args: chromiumArgs,
+    executablePath: executablePath,
+    headless: true,
+    // ignoreHTTPSErrors: true,
+  });
 
   await delay(1000);
 
