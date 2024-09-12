@@ -1,6 +1,6 @@
 import { and, arrayOverlaps, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { db } from "../lib/db/index.js";
-import chromium from "@sparticuz/chromium-min";
+import chromium from "@sparticuz/chromium";
 import puppeteerCore from "puppeteer-core";
 import { nanoid } from "nanoid";
 import puppeteer from "puppeteer";
@@ -23,7 +23,7 @@ const MAX_INPUT_TOKEN = 1000; // 1000 will be scraped content's max token  but w
 const MAX_OUTPUT_TOKEN = 1000;
 
 const chromiumPack =
-  "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar";
+  "https://github.com/Sparticuz/chromium/releases/download/v127.0.0/chromium-v127.0.0-pack.tar";
 
 // const chromiumPack =
 //   "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
