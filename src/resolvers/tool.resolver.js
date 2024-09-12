@@ -538,7 +538,7 @@ async function scrapeWebsite(url) {
   console.log({ isProduction });
 
   const chromiumArgs = isProduction
-    ? chromium.args
+    ? [...chromium.args, "--disable-features=site-per-process"]
     : [
         "--disable-setuid-sandbox",
         "--no-sandbox",
