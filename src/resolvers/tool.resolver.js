@@ -559,23 +559,30 @@ async function scrapeWebsite(url) {
     // ignoreHTTPSErrors: true,
   });
 
+  await delay(1000);
+
   console.log("AFTER LAUNCH");
 
   const page = await browser.newPage();
+
+  await delay(1000);
   console.log("AFTER NEW PAGE");
 
   await page.setViewport({ width: 1200, height: 630 });
 
+  await delay(1000);
+
   console.log("AFTER VIEWPORT");
 
   try {
-    const navigationPromise = page.waitForNavigation({
-      waitUntil: "networkidle0",
-    });
     const gotoStart = Date.now();
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await page.goto(url, {
+      waitUntil: ["domcontentloaded", "networkidle2"],
+      timeout: 3000000,
+    });
     const gotoEnd = Date.now();
-    await navigationPromise;
+
+    await delay(1000);
 
     console.log(`GOTO TOOK. ${gotoEnd - gotoStart} ms`);
   } catch (error) {
@@ -811,4 +818,8 @@ async function uploadToolFiles(ssBuffer, scrapedToolLogoBuffer, name) {
   console.log(`FILES UPLOAD END. ${fileUploadEnd - fileUploadStart} ms`);
 
   return { toolLogoImageUrl, toolWebImageUrl };
+}
+
+function delay(time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
 }
