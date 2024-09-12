@@ -569,11 +569,16 @@ async function scrapeWebsite(url) {
 
   console.log("AFTER VIEWPORT");
 
-  const gotoStart = Date.now();
-  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-  const gotoEnd = Date.now();
+  try {
+    const gotoStart = Date.now();
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    const gotoEnd = Date.now();
 
-  console.log(`GOTO TOOK. ${gotoEnd - gotoStart} ms`);
+    console.log(`GOTO TOOK. ${gotoEnd - gotoStart} ms`);
+  } catch (error) {
+    console.error("Navigation failed:", error);
+    // Handle the error (e.g., retry, skip, or exit)
+  }
 
   console.log("AFTER GOTO");
 
