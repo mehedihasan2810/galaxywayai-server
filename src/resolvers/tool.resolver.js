@@ -570,7 +570,7 @@ async function scrapeWebsite(url) {
   console.log("AFTER VIEWPORT");
 
   const gotoStart = Date.now();
-  await page.goto(url, { waitUntil: "load", timeout: 60000 });
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
   const gotoEnd = Date.now();
 
   console.log(`GOTO TOOK. ${gotoEnd - gotoStart} ms`);
