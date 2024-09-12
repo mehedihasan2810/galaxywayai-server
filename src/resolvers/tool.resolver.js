@@ -538,7 +538,7 @@ async function scrapeWebsite(url) {
   console.log({ isProduction });
 
   const chromiumArgs = isProduction
-    ? [...chromium.args, "--disable-features=site-per-process"]
+    ? chromium.args
     : [
         "--disable-setuid-sandbox",
         "--no-sandbox",
@@ -629,6 +629,8 @@ async function scrapeWebsite(url) {
   console.log({ scrapedToolLogoBuffer });
 
   await browser.close();
+
+  console.log({ textContent });
 
   const scrapingEnd = Date.now();
   console.log(`SCRAPING END. ${scrapingEnd - scrapingStart} ms`);
