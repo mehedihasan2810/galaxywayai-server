@@ -1,6 +1,6 @@
 import { and, arrayOverlaps, asc, desc, eq, ilike, or } from "drizzle-orm";
 import { db } from "../lib/db/index.js";
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 import puppeteerCore from "puppeteer-core";
 import { nanoid } from "nanoid";
 import puppeteer from "puppeteer";
@@ -23,7 +23,7 @@ const MAX_INPUT_TOKEN = 1000; // 1000 will be scraped content's max token  but w
 const MAX_OUTPUT_TOKEN = 1000;
 
 const chromiumPack =
-  "https://github.com/Sparticuz/chromium/releases/download/v127.0.0/chromium-v127.0.0-pack.tar";
+  "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar";
 
 // const chromiumPack =
 //   "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
@@ -559,37 +559,20 @@ async function scrapeWebsite(url) {
     // ignoreHTTPSErrors: true,
   });
 
-  await delay(1000);
-
   console.log("AFTER LAUNCH");
 
   const page = await browser.newPage();
 
-  await delay(1000);
   console.log("AFTER NEW PAGE");
 
   await page.setViewport({ width: 1200, height: 630 });
 
-  await delay(1000);
-
   console.log("AFTER VIEWPORT");
 
-  try {
-    const gotoStart = Date.now();
-    await page.goto(url, {
-      waitUntil: ["domcontentloaded", "networkidle2"],
-      timeout: 3000000,
-    });
-    const gotoEnd = Date.now();
-    await page.waitForSelector("body");
-
-    await delay(1000);
-
-    console.log(`GOTO TOOK. ${gotoEnd - gotoStart} ms`);
-  } catch (error) {
-    console.error("Navigation failed:", error);
-    // Handle the error (e.g., retry, skip, or exit)
-  }
+  await page.goto(url, {
+    waitUntil: ["domcontentloaded"],
+    timeout: 3000000,
+  });
 
   console.log("AFTER GOTO");
 
@@ -821,6 +804,6 @@ async function uploadToolFiles(ssBuffer, scrapedToolLogoBuffer, name) {
   return { toolLogoImageUrl, toolWebImageUrl };
 }
 
-function delay(time) {
-  return new Promise((resolve) => setTimeout(resolve, time));
-}
+// function delay(time) {
+//   return new Promise((resolve) => setTimeout(resolve, time));
+// }
