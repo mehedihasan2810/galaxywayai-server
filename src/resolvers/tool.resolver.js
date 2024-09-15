@@ -329,8 +329,6 @@ export const toolResolver = {
       let { textContent, ssBuffer, scrapedToolLogoBuffer } =
         await scrapeWebsite(url);
 
-      // return;
-
       const encoding = encoding_for_model("gpt-4");
       let inputTokens = await countTokens(textContent, encoding);
 
@@ -432,9 +430,15 @@ async function trimContent(content, maxTokens, encoding) {
   return content;
 }
 
-async function scrapeWebsite(url) {
+async function scrapeWebsite(urll) {
   const scrapingStart = Date.now();
   console.log("SCRAPING START");
+
+  console.log({ urll });
+
+  const url = urll.endsWith("/") ? urll.slice(0, -1) : urll;
+
+  console.log({ url });
 
   const { data: html } = await axios.get(url);
 
