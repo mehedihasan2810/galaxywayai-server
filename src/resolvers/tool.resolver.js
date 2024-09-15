@@ -312,8 +312,13 @@ export const toolResolver = {
       return updatedStatusRes;
     },
 
-    async generateTool(_, { url }) {
+    async generateTool(_, { url: urll }) {
       const wholeApiStart = Date.now();
+
+      console.log({ urll });
+
+      const url = urll.endsWith("/") ? urll.slice(0, -1) : urll;
+
       console.log({ url });
 
       const openaiApiKey = process.env.OPENAI_API_KEY;
@@ -430,15 +435,9 @@ async function trimContent(content, maxTokens, encoding) {
   return content;
 }
 
-async function scrapeWebsite(urll) {
+async function scrapeWebsite(url) {
   const scrapingStart = Date.now();
   console.log("SCRAPING START");
-
-  console.log({ urll });
-
-  const url = urll.endsWith("/") ? urll.slice(0, -1) : urll;
-
-  console.log({ url });
 
   const { data: html } = await axios.get(url);
 
