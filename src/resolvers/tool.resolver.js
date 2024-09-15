@@ -18,6 +18,8 @@ import { PROMPT_COMMON } from "../constants/common-prompt.js";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3Client } from "../lib/s3-client.js";
 import { openai } from "../lib/openai.js";
+import axios from "axios";
+import * as cheerio from "cheerio";
 
 const MAX_INPUT_TOKEN = 1000; // 1000 will be scraped content's max token  but with system and assistant message total token will be 1520
 const MAX_OUTPUT_TOKEN = 1000;
@@ -27,61 +29,6 @@ const chromiumPack =
 
 // const chromiumPack =
 //   "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
-
-// const tags = `AI Detection, Aggregators, Avatar, Chat, Copywriting, Finance, For Fun, Gaming, Generative Art, Generative Code, Generative Video, Image Improvement, Image Scanning, Inspiration, Marketing, Motion  Capture, Music, Podcasting, Productivity, Prompt Guides, Research, Self-Improvement, Social Media, Speech-To-Text, Text-To-Speech, Text-To-Video, Translation, Video Editing, Voice Modulation`;
-
-// const pricing_model = `Free, Premium, GitHub, Google Colab, Open Source, Paid`;
-
-// const PROMPT_COMMON = [
-//   {
-//     role: "system",
-//     content: `You are a helpful assistant who generates a name, title, description, summary, tags, additional tags and pricing model from the given prompt.
-
-//     When given a prompt, you will generate a name, a title, a description, a summary, tags, additional tags and pricing model from the given prompt. The prompt is content of a website.
-
-// To generate the name, title, description, summary, tags, additional tags and pricing model, follow these guidelines:
-// - The name should be the name of the website.
-// - The title should be concise and captivating, representing the main theme or essence of the content. Also the title should be less than 100 characters. When adding the title to the response, write only the title, do not add any explanation before or after in your response. Do not wrap the title in any punctuation.
-// - The description should provide a 1-2 sentence brief overview of the website's content, enticing users to explore further.
-// - The summary should provide a brief overview of the website's content, enticing users to explore further. Keep it between 100 to 150 words.
-// - The tags should be among these ${tags}. Generate maximum 3 tags.
-// - The additional tags should be relevant keywords or phrases that users might search for when looking for similar content. Generate maximum 5 additional tags.
-// - The pricing model should be among these words ${pricing_model}. If you can't find the pricing model then return empty string.
-
-// Once you have all this information, return it in a JSON string with the keys: name, title, description, summary, tags, additional_tags, pricing_model. You MUST return valid JSON. Do NOT wrap the json output in \`\`\`json ... \`\`\`!
-//       `,
-//   },
-//   {
-//     role: "assistant",
-//     content: "What is the content of the website?",
-//   },
-// ];
-
-// const PROMPT_COMMON = [
-//   {
-//     role: "system",
-//     content: `You are a helpful assistant who generates structured information about a website based on its content. When given a prompt containing website content, you will generate the following information:
-
-// 1. name: The name of the website.
-// 2. description: A brief 1-2 sentence overview of the website's content and purpose.
-// 3. pricing_model: Choose from: Free, Freemium, Paid, Free Trial, Contact for Pricing, Deals. If uncertain, return an empty string.
-// 4. category: A single value that best matches the website's primary purpose.
-// 5. categories: An array of up to 3 strings representing the website's categories.
-// 6. features: An array of strings, only including the following options: Waitlist, Open Source, Mobile App, API, Discord Community, Browser Extension. Include only the features that apply to the website.
-// 7. blog: An HTML string (wrapped in backticks) containing a concise blog post about the website. Include information about its purpose, services, how it can help in daily life, and other important aspects. Keep the blog brief but informative.
-
-// Return this information as a valid JSON string with the keys: name, description, pricing_model, category, categories, features, blog. Do NOT wrap the JSON output in \`\`\`json ... \`\`\`!`,
-//   },
-//   {
-//     role: "assistant",
-//     content:
-//       "Please provide the content of the website you'd like me to analyze.",
-//   },
-// ];
-
-// 2. description: A brief 1-2 sentence overview of the website's content and purpose.
-
-// System and assistant token size is 520
 
 export const toolResolver = {
   Query: {
@@ -214,52 +161,6 @@ export const toolResolver = {
       console.log({ searchedToolsLength, limit });
 
       return { tools: searchedTools, count: searchedToolsLength };
-
-      // let searchRes;
-      // if (isPricing || isCategory || trimmedQuery !== "") {
-      //   console.log("query");
-      //   searchRes = await db
-      //     .select()
-      //     .from(oldTools)
-      //     .where(
-      //       and(
-      //         or(
-      //           isPricing
-      //             ? ilike(oldTools.pricingModel, pricing.join(","))
-      //             : // ? arrayContains(oldTools.pricingModel, pricing)
-      //               undefined,
-      //           isCategory
-      //             ? arrayContains(oldTools.tags, categories)
-      //             : undefined,
-      //           trimmedQuery
-      //             ? or(
-      //                 ilike(oldTools.name, `%${trimmedQuery}%`),
-      //                 ilike(oldTools.title, `%${trimmedQuery}%`)
-      //               )
-      //             : undefined
-      //         ),
-      //         eq(oldTools.status, "published")
-      //       )
-      //     )
-      //     .orderBy(
-      //       sortBy === "newest"
-      //         ? desc(oldTools.createdAt)
-      //         : asc(oldTools.createdAt)
-      //     );
-      // } else {
-      //   console.log("all");
-      //   searchRes = await db
-      //     .select()
-      //     .from(oldTools)
-      //     .where(eq(oldTools.status, "published"))
-      //     .orderBy(
-      //       sortBy === "newest"
-      //         ? desc(oldTools.createdAt)
-      //         : asc(oldTools.createdAt)
-      //     );
-      // }
-
-      // const res = await searchRes;
     },
 
     async heroSearchTools(_, { query }) {
@@ -428,6 +329,8 @@ export const toolResolver = {
       let { textContent, ssBuffer, scrapedToolLogoBuffer } =
         await scrapeWebsite(url);
 
+      // return;
+
       const encoding = encoding_for_model("gpt-4");
       let inputTokens = await countTokens(textContent, encoding);
 
@@ -533,6 +436,33 @@ async function scrapeWebsite(url) {
   const scrapingStart = Date.now();
   console.log("SCRAPING START");
 
+  const { data: html } = await axios.get(url);
+
+  // Load the HTML content into Cheerio
+  const $ = cheerio.load(html);
+
+  $("script, style, noscript").remove();
+
+  // Extract text content using Cheerio
+  const title = $("title").text().trim();
+  const description =
+    $("meta[name='description']").attr("content")?.trim() || "";
+  const bodyText = $("body").text().trim();
+
+  // Combine title, description, and body text
+  const textContent = [title, description, bodyText]
+    .filter(Boolean)
+    .join("\n\n")
+    .replaceAll(/\s+/g, " ");
+  // .replaceAll("\n", " ");
+
+  // Extract favicon (or any other image)
+  const scrapedToolLogoUrl =
+    $("link[rel~='icon'][type='image/png']").attr("href") ||
+    $("link[rel='shortcut icon'][type='image/png']").attr("href");
+
+  console.log({ title, description, scrapedToolLogoUrl, textContent });
+
   const isProduction = process.env.NODE_ENV === "production";
 
   console.log({ isProduction });
@@ -576,55 +506,60 @@ async function scrapeWebsite(url) {
 
   console.log("AFTER GOTO");
 
-  let [textContent, scrapedToolLogoUrl, ssBuffer] = await Promise.all([
-    page.evaluate(() => {
-      const extractTextContent = (element) => {
-        if (element.nodeType === Node.TEXT_NODE) {
-          return element.textContent.trim();
-        }
-        if (element.nodeType !== Node.ELEMENT_NODE) {
-          return "";
-        }
-        if (
-          element.tagName === "SCRIPT" ||
-          element.tagName === "STYLE" ||
-          element.tagName === "NOSCRIPT"
-        ) {
-          return "";
-        }
-        let text = "";
-        for (let child of element.childNodes) {
-          text += extractTextContent(child) + " ";
-        }
-        return text.trim();
-      };
+  // let [ssBuffer] = await Promise.all([
+  //   // page.evaluate(() => {
+  //   //   const extractTextContent = (element) => {
+  //   //     if (element.nodeType === Node.TEXT_NODE) {
+  //   //       return element.textContent.trim();
+  //   //     }
+  //   //     if (element.nodeType !== Node.ELEMENT_NODE) {
+  //   //       return "";
+  //   //     }
+  //   //     if (
+  //   //       element.tagName === "SCRIPT" ||
+  //   //       element.tagName === "STYLE" ||
+  //   //       element.tagName === "NOSCRIPT"
+  //   //     ) {
+  //   //       return "";
+  //   //     }
+  //   //     let text = "";
+  //   //     for (let child of element.childNodes) {
+  //   //       text += extractTextContent(child) + " ";
+  //   //     }
+  //   //     return text.trim();
+  //   //   };
 
-      const title = document.querySelector("title")?.textContent?.trim() || "";
-      const description =
-        document
-          .querySelector("meta[name='description']")
-          ?.getAttribute("content")
-          ?.trim() || "";
-      const bodyText = extractTextContent(document.body);
+  //   //   const title = document.querySelector("title")?.textContent?.trim() || "";
+  //   //   const description =
+  //   //     document
+  //   //       .querySelector("meta[name='description']")
+  //   //       ?.getAttribute("content")
+  //   //       ?.trim() || "";
+  //   //   const bodyText = extractTextContent(document.body);
 
-      return [title, description, bodyText].filter(Boolean).join("\n\n");
-    }),
+  //   //   return [title, description, bodyText].filter(Boolean).join("\n\n");
+  //   // }),
 
-    page.evaluate(() => {
-      // const faviconLink =
-      //   document.querySelector("link[rel~='icon']") ||
-      //   document.querySelector("link[rel='shortcut icon']");
-      const faviconLink =
-        document.querySelector("link[rel~='icon'][type='image/png']") ||
-        document.querySelector("link[rel='shortcut icon'][type='image/png']");
-      return faviconLink ? faviconLink.href : null;
-    }),
+  //   // page.evaluate(() => {
+  //   //   // const faviconLink =
+  //   //   //   document.querySelector("link[rel~='icon']") ||
+  //   //   //   document.querySelector("link[rel='shortcut icon']");
+  //   //   const faviconLink =
+  //   //     document.querySelector("link[rel~='icon'][type='image/png']") ||
+  //   //     document.querySelector("link[rel='shortcut icon'][type='image/png']");
+  //   //   return faviconLink ? faviconLink.href : null;
+  //   // }),
 
-    page.screenshot({
-      // path: `./scrapingbee_homepage-${Date.now()}.webp`,
-      type: "webp",
-    }),
-  ]);
+  //   page.screenshot({
+  //     // path: `./scrapingbee_homepage-${Date.now()}.webp`,
+  //     type: "webp",
+  //   }),
+  // ]);
+
+  const ssBuffer = await page.screenshot({
+    // path: `./scrapingbee_homepage-${Date.now()}.webp`,
+    type: "webp",
+  });
 
   console.log("BUFFER START");
   console.log({ ssBuffer });
@@ -634,8 +569,16 @@ async function scrapeWebsite(url) {
 
   let scrapedToolLogoBuffer;
   if (scrapedToolLogoUrl) {
-    const faviconResponse = await page.goto(scrapedToolLogoUrl);
-    scrapedToolLogoBuffer = await faviconResponse.buffer();
+    const faviconUrl = `${url}${scrapedToolLogoUrl}`;
+    console.log({ faviconUrl });
+
+    const faviconResponse = await axios.get(faviconUrl, {
+      responseType: "arraybuffer",
+      // timeout: 600000,
+    });
+    // const faviconResponse = await page.goto(scrapedToolLogoUrl);
+    // eslint-disable-next-line no-undef
+    scrapedToolLogoBuffer = Buffer.from(faviconResponse.data);
 
     // console.log({ scrapedToolLogoBuffer });
   }
